@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   makeStyles,
   Typography,
@@ -8,6 +8,8 @@ import {
   Box,
   Container,
 } from "@material-ui/core";
+import { checkAuth, getStore, signup } from "./APIs/Api";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -53,17 +55,63 @@ const useStyles = makeStyles((theme) => ({
 }));
 const Signup = () => {
   const classes = useStyles();
+  const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
+  const handleChange = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
+  useEffect(() => {
+    if (getStore(checkAuth) == "true") window.location.href = "/";
+  }, []);
+  const checkEmpty = (name) => {
+    if (!formData[name]) return alert(name + "is required");
+  };
+
+  const submitSignup = (e) => {
+    e.preventDefault();
+    checkEmpty("name");
+    checkEmpty("email");
+    checkEmpty("password");
+    checkEmpty("mobile");
+    var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    if (re.test(formData.password)) {
+    } else {
+      return alert(
+        "Password must be 8 charecter long, must have one uppercase, lowercase and a digit."
+      );
+    }
+
+    signup(
+      {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        mobile: formData.mobile,
+      },
+      (res) => {
+        console.log(res, "<<<<<< res");
+        alert(res.message);
+        if (res.user) {
+          navigate("/login");
+        }
+      }
+    );
+  };
   return (
     <div className={classes.main}>
       <Container maxWidth="lg" style={{ width: "fit-content" }}>
         <Typography className={classes.title}>Signup</Typography>
         <br />
         <br />
-        <form action="">
+        <form action="" onSubmit={submitSignup}>
           <TextField
             variant="outlined"
             id=""
+            required={true}
             className={classes.TextField}
+            name="name"
+            onChange={(e) => handleChange("name", e.target.value)}
             label="Enter First Name"
           />
           <br />
@@ -71,14 +119,22 @@ const Signup = () => {
           <TextField
             variant="outlined"
             id=""
+            type="number"
+            name="mobile"
+            required={true}
+            onChange={(e) => handleChange("mobile", e.target.value)}
             className={classes.TextField}
-            label="Enter Last Name"
+            label="Enter Mobile number"
           />
           <br />
           <br />
           <TextField
             variant="outlined"
+            required={true}
             id=""
+            name="email"
+            type="email"
+            onChange={(e) => handleChange("email", e.target.value)}
             className={classes.TextField}
             label="Enter Email"
           />
@@ -86,8 +142,11 @@ const Signup = () => {
           <br />
           <TextField
             variant="outlined"
+            required={true}
             id=""
             className={classes.TextField}
+            name="password"
+            onChange={(e) => handleChange("password", e.target.value)}
             label="Password"
           />
           <br />
@@ -105,8 +164,9 @@ const Signup = () => {
               fontSize: "17px",
               padding: "10px 30px",
             }}
+            type="submit"
           >
-            Login
+            Signup
           </Button>
         </form>
       </Container>

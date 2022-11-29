@@ -1,10 +1,25 @@
 import "./App.css";
 import Slider from "react-slick";
 import { useEffect, useState } from "react";
-import { getCourses } from "./APIs/Api";
+import {
+  base_url,
+  checkAuth,
+  getCourses,
+  getStore,
+  USER_DATA,
+} from "./APIs/Api";
+import axios from "axios";
+import {
+  useNavigate,
+  useNavigation,
+  useRouteLoaderData,
+} from "react-router-dom";
 
 function Home() {
   const [allCourses, setAllCourses] = useState([]);
+  const navigation = useNavigate();
+  const [userData, setUserData] = useState({});
+  const [selectedCourse, setSelectedCourse] = useState({});
   const settings = {
     dots: true,
     infinite: true,
@@ -14,11 +29,110 @@ function Home() {
   };
 
   useEffect(() => {
+    // console.log(localStorage.getItem(USER_DATA), "<<<use data");
+    setUserData(getStore(USER_DATA));
     getCourses((res) => {
       console.log(res, "<<<thisis result data");
       setAllCourses(res.data);
     });
   }, []);
+
+  function loadScript(src) {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  }
+
+  async function showRazorPay2() {
+    // console.log("updating the user with id--->>>>", id);
+
+    if (!userData) {
+      // return alert("Please login to buy the course");
+      return navigation("/login");
+    }
+
+    const res = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
+
+    if (!res) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
+
+    // creating a new order
+    const result = await axios.get(base_url + "/payment/createorder/");
+
+    if (!result) {
+      alert("Server error. Are you online?");
+      return;
+    }
+    console.log(result, "<<<result");
+
+    // Getting the order details back
+
+    const { amount, id, currency } = result.data;
+    // const liveKey = "rzp_live_rWC4iXaB2ed5LL"; // old live key
+    // const testKey = "rzp_test_Ten1Hjtq2zzxMw"; // old test key
+
+    const liveKey = "rzp_live_XVo1ue3IK3yAAY"; // new live key Qj8JmIxBHERf69sIZAb6qiu7
+
+    const options = {
+      // key: "rzp_live_XVo1ue3IK3yAAY", // Enter the Key ID generated from the Dashboard
+      key: liveKey,
+      amount: amount.toString(),
+      currency: currency,
+      name: "Vertex Education",
+      description: "Coaching Institue for (IIT / Medical students)",
+      // image: { logo },
+      order_id: id,
+      handler: async function (response) {
+        const data = {
+          orderCreationId: id,
+          razorpayPaymentId: response.razorpay_payment_id,
+          razorpayOrderId: response.razorpay_order_id,
+          razorpaySignature: response.razorpay_signature,
+          userId: userData._id,
+          ...selectedCourse,
+          courseId: selectedCourse._id,
+        };
+        console.log(data);
+
+        // 0000
+        // return null;
+
+        const result = await axios.post(
+          base_url + "/payment/payment/callback",
+          data
+        );
+        console.log(result);
+
+        // alert(result.data.msg);
+      },
+      prefill: {
+        name: "akshay",
+        email: "lakheraakshay@gmail.com",
+        contact: "7845874589",
+      },
+      notes: {
+        address: "address",
+      },
+      theme: {
+        color: "#61dafb",
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  }
 
   return (
     <div className="App">
@@ -76,16 +190,50 @@ function Home() {
                             <li>
                               <a href="/">Home</a>
                             </li>
-                            <li class="button-header margin-left ">
-                              <a href=".signup" class="btn">
-                                Sign Up
-                              </a>
-                            </li>
-                            <li class="button-header">
-                              <a href="/login" class="btn btn3">
-                                Sign in
-                              </a>
-                            </li>
+                            {getStore(checkAuth) != "true" && (
+                              <>
+                                <li class="button-header margin-left ">
+                                  <a href="signup" class="btn">
+                                    Sign Up
+                                  </a>
+                                </li>
+                                <li class="button-header">
+                                  <a href="/login" class="btn btn3">
+                                    Sign in
+                                  </a>
+                                </li>
+                              </>
+                            )}
+                            {getStore(checkAuth) == "true" && (
+                              <>
+                                <li
+                                  class="button-header margin-left "
+                                  style={{ color: "white", cursor: "pointer" }}
+                                  onClick={() => {
+                                    // localStorage.removeItem(checkAuth);
+                                    // localStorage.removeItem(userData);
+                                    // window.location.reload(true);
+                                  }}
+                                >
+                                  <a href="https://scaler-dashboard-8l0frtlq0-lakheraakshay.vercel.app/signin" class="btn">
+                                  Dashboard
+                                  {/* </a> */}
+                                </li>
+                                <li
+                                  class="button-header margin-left "
+                                  style={{ color: "white", cursor: "pointer" }}
+                                  onClick={() => {
+                                    localStorage.removeItem(checkAuth);
+                                    localStorage.removeItem(userData);
+                                    window.location.reload(true);
+                                  }}
+                                >
+                                  {/* <a href=".signup" class="btn"> */}
+                                  Logout
+                                  {/* </a> */}
+                                </li>
+                              </>
+                            )}
                           </ul>
                         </nav>
                       </div>
@@ -181,47 +329,64 @@ function Home() {
             </div>
             <div class="courses-actives">
               <Slider {...settings}>
-                <div class="properties pb-20">
-                  <div class="properties__card">
-                    <div class="properties__img overlay1">
-                      <a href="#">
-                        <img src="assets/img/gallery/featured1.png" alt="" />
-                      </a>
-                    </div>
-                    <div class="properties__caption">
-                      <p>User Experience</p>
-                      <h3>
-                        <a href="#">Fundamental of UX for Application design</a>
-                      </h3>
-                      <p>
-                        The automated process all your website tasks. Discover
-                        tools and techniques to engage effectively with
-                        vulnerable children and young people.
-                      </p>
-                      <div class="properties__footer d-flex justify-content-between align-items-center">
-                        <div class="restaurant-name">
-                          <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half"></i>
-                          </div>
-                          <p>
-                            <span>(4.5)</span> based on 120
-                          </p>
+                {allCourses.map((item) => {
+                  return (
+                    <div class="properties pb-20">
+                      <div class="properties__card">
+                        <div class="properties__img overlay1">
+                          <a href="#">
+                            <img
+                              // src="assets/img/gallery/featured1.png"
+                              src={item?.courseImageImage}
+                              style={{
+                                objectFit: "cover",
+                                width: "200px",
+                                margin: "auto",
+                              }}
+                              alt=""
+                              width="200px"
+                            />
+                          </a>
                         </div>
-                        <div class="price">
-                          <span>$135</span>
+                        <div class="properties__caption">
+                          <p>User Experience</p>
+                          <h3>
+                            <a href="#">{item?.courseTitle}</a>
+                          </h3>
+                          <p>{item?.courseDescription}</p>
+                          <div class="properties__footer d-flex justify-content-between align-items-center">
+                            <div class="restaurant-name">
+                              <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half"></i>
+                              </div>
+                              <p>
+                                <span>(4.5)</span> based on 120
+                              </p>
+                            </div>
+                            <div class="price">
+                              <span>Rs ${item.courseAmount}</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedCourse(item);
+                              showRazorPay2();
+                            }}
+                            class="border-btn border-btn2"
+                          >
+                            Buy Nowd
+                          </button>
                         </div>
                       </div>
-                      <a href="#" class="border-btn border-btn2">
-                        Buy Now
-                      </a>
                     </div>
-                  </div>
-                </div>
-                <div class="properties pb-20">
+                  );
+                })}
+
+                {/* <div class="properties pb-20">
                   <div class="properties__card">
                     <div class="properties__img overlay1">
                       <a href="#">
@@ -340,7 +505,7 @@ function Home() {
                       </a>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </Slider>
             </div>
           </div>

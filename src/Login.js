@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   makeStyles,
   Typography,
@@ -8,7 +8,7 @@ import {
   Box,
   Container,
 } from "@material-ui/core";
-import { login } from "./APIs/Api";
+import { checkAuth, getStore, login, userData, USER_DATA } from "./APIs/Api";
 import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -62,11 +62,13 @@ const Login = () => {
     userType: "",
   });
   const submit = () => {
-    login(formData, (res) => {
+    login(formData, async (res) => {
       console.log(res);
       if (res.user) {
         navigate("/");
-        localStorage.setItem("scaler_user", JSON.stringify(res.user[0]));
+        await localStorage.setItem(checkAuth, JSON.stringify("true"));
+        await localStorage.setItem(USER_DATA, JSON.stringify(res.user[0]));
+        // await localStorage.setItem(userData, "kljlkjkljlkj");
       } else {
         alert(res.message);
       }
@@ -75,6 +77,10 @@ const Login = () => {
   const hanldeChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
   };
+
+  useEffect(() => {
+    if (getStore(checkAuth) == "true") window.location.href = "/";
+  }, []);
 
   return (
     <div className={classes.main}>
