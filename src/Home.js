@@ -215,9 +215,12 @@ function Home() {
                                     // window.location.reload(true);
                                   }}
                                 >
-                                  <a href="https://scaler-dashboard-8l0frtlq0-lakheraakshay.vercel.app/signin" class="btn">
-                                  Dashboard
-                                  {/* </a> */}
+                                  <a
+                                    href="https://scaler-dashboard-8l0frtlq0-lakheraakshay.vercel.app/signin"
+                                    class="btn"
+                                  >
+                                    Dashboard
+                                  </a>
                                 </li>
                                 <li
                                   class="button-header margin-left "
