@@ -216,7 +216,7 @@ function Home() {
                                   }}
                                 >
                                   <a
-                                    href="https://scaler-dashboard-8l0frtlq0-lakheraakshay.vercel.app/signin"
+                                    href="https://scaler-dashboard.vercel.app/signin"
                                     class="btn"
                                   >
                                     Dashboard
