@@ -1,7 +1,7 @@
 export const checkAuth = "IS_USER_LOGGED_IN";
 export const userData = "SCALER_USER_DATA";
 export const USER_DATA = "SCALER_USER_DATA";
-export const base_url = "hhttps://scaler-back.herokuapp.com";
+export const base_url = "https://scaler-back.herokuapp.com";
 
 const getStore = (name) => JSON.parse(localStorage.getItem(name));
 const getCourses = (callBack) => {
