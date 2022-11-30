@@ -216,7 +216,10 @@ function Home() {
                                   }}
                                 >
                                   <a
-                                    href="https://scaler-dashboard.vercel.app/signin"
+                                    // href="https://scaler-dashboard.vercel.app/user/course"
+                                    href={`https://scaler-dashboard.vercel.app/user/course/${
+                                      getStore(USER_DATA)?._id
+                                    }`}
                                     class="btn"
                                   >
                                     Dashboard
@@ -376,12 +379,14 @@ function Home() {
                           </div>
                           <button
                             onClick={() => {
+                              if (getStore(checkAuth) != "true")
+                                return (window.location.href = "/login");
                               setSelectedCourse(item);
                               showRazorPay2();
                             }}
                             class="border-btn border-btn2"
                           >
-                            Buy Nowd
+                            Buy Now
                           </button>
                         </div>
                       </div>
@@ -716,11 +721,11 @@ function Home() {
             </div>
             <div class="row justify-content-center">
               <div class="col-xl-12">
-                <div class="section-tittle text-center mt-20">
+                {/* <div class="section-tittle text-center mt-20">
                   <a href="courses.html" class="border-btn">
                     View More Subjects
                   </a>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

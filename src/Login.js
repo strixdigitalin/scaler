@@ -59,7 +59,7 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    userType: "",
+    userType: "user",
   });
   const submit = () => {
     login(formData, async (res) => {
@@ -79,6 +79,7 @@ const Login = () => {
   };
 
   useEffect(() => {
+    // console.log()
     if (getStore(checkAuth) == "true") window.location.href = "/";
   }, []);
 
@@ -89,18 +90,19 @@ const Login = () => {
         <br />
         <br />
         <form action="">
-          <TextField
+          {/* <TextField
             variant="outlined"
             id=""
             className={classes.TextField}
             placeholder="user/admin"
+            
             label="Enter User type"
             onChange={(e) => {
               console.log(e.target.value);
               hanldeChange("userType", e.target.value);
             }}
-          />
-          <br />
+          /> */}
+
           <br />
           <TextField
             variant="outlined"
