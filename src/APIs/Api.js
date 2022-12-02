@@ -1,8 +1,8 @@
 export const checkAuth = "IS_USER_LOGGED_IN";
 export const userData = "SCALER_USER_DATA";
 export const USER_DATA = "SCALER_USER_DATA";
-export const base_url = "https://scaler-back.herokuapp.com";
-
+// export const base_url = "https://scaler-back.herokuapp.com";
+export const base_url = "http://localhost:5000";
 const getStore = (name) => JSON.parse(localStorage.getItem(name));
 const getCourses = (callBack) => {
   var requestOptions = {
@@ -67,6 +67,17 @@ const signup = (payload, callBack) => {
     .then((result) => {
       callBack(JSON.parse(result));
     })
+    .catch((error) => console.log("error", error));
+};
+export const getOrdersById = (id, callBack) => {
+  var requestOptions = {
+    method: "GET",
+    redirect: "follow",
+  };
+
+  fetch(base_url + "/payment/orders-user?userId=" + id, requestOptions)
+    .then((response) => response.text())
+    .then((result) => callBack(JSON.parse(result)))
     .catch((error) => console.log("error", error));
 };
 

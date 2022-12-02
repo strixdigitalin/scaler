@@ -66,8 +66,8 @@ const Login = () => {
       console.log(res);
       if (res.user) {
         navigate("/");
-        await localStorage.setItem(checkAuth, JSON.stringify("true"));
-        await localStorage.setItem(USER_DATA, JSON.stringify(res.user[0]));
+        await window.localStorage.setItem(checkAuth, JSON.stringify("true"));
+        await window.localStorage.setItem(USER_DATA, JSON.stringify(res.user[0]));
         // await localStorage.setItem(userData, "kljlkjkljlkj");
       } else {
         alert(res.message);

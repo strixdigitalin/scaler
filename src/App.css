@@ -28,6 +28,37 @@
   color: #61dafb;
 }
 
+.course-wrap{
+  display: flex;
+  justify-content:flex-start;
+  gap: 1%;
+  margin: 0px 60px;
+  flex-wrap: wrap;
+  font-size: 15px;
+  /* justify-content: ""; */
+}
+.table-cover{
+  overflow-x:scroll ;
+  margin: 0px 60px;
+ 
+  margin-bottom: 5rem;
+}
+.table-cover-row{
+  width: "100%";
+  /* overflow-x: scroll; */
+  display: flex;
+  /* overflow-x: scroll  ; */
+
+  
+}
+.table-cover-item{
+  /* width: "100%"; */
+  /* overflow-x: scroll; */
+  /* display: flex; */
+  width: 200px;
+
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

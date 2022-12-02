@@ -1,5 +1,10 @@
 import React from "react";
 import { makeStyles, Box, Typography, Button } from "@material-ui/core";
+import CourseCard from "./Components/CourseCard";
+import { useState } from "react";
+import { useEffect } from "react";
+import { getOrdersById, getStore, USER_DATA } from "./APIs/Api";
+import { fontWeight } from "@mui/system";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,6 +56,14 @@ const useStyles = makeStyles((theme) => ({
 
 const UserProfile = () => {
   const classes = useStyles();
+  const [allCourses, setAllCourses] = useState([]);
+  useEffect(() => {
+    console.log(getStore(USER_DATA)._id, "<<<this is user id");
+    getOrdersById(getStore(USER_DATA)._id, (res) => {
+      console.log(res, "<<<<this is res");
+      setAllCourses(res.orders);
+    });
+  }, []);
 
   return (
     <Box className={classes.root}>
@@ -65,27 +78,26 @@ const UserProfile = () => {
       >
         <div className={classes.textBlock}>
           <Typography variant="h2" className={classes.title1}>
-            Training Wheels
+            Your Profile
           </Typography>
           <br />
-          <Typography style={{textAlign: "center"}} variant="h4">User Profile</Typography>
+          {/* <Typography style={{ textAlign: "center" }} variant="h4">
+            User Profile
+          </Typography> */}
         </div>
       </Box>
 
       <Box>
-        <Typography variant="h5" style={{padding: 20}} className={classes.subHeading}>
-          Name : BobPrep Chaprawala
+        <Typography
+          variant="h5"
+          style={{ padding: 20 }}
+          className={classes.subHeading}
+        >
+          Name : {getStore(USER_DATA).name}
         </Typography>
 
-        <Typography style={{padding: 20}} variant="h5">
-          Founded and designed by one of the top GMAT tutors, BobPrep is what
-          GMAT Prep should be. At BobPrep we explain complicated concepts in a
-          straightforward easy-to-understand way accompanied by practice
-          problems that help you master the material. Learn the same techniques
-          and strategies that have been used by countless students to gain
-          admission into MBA programs.
-        </Typography>
-        
+        <Typography style={{ padding: 20 }} variant="h5"></Typography>
+
         <br />
       </Box>
 
@@ -101,19 +113,86 @@ const UserProfile = () => {
       >
         {/* Left Text Section */}
         <Box width="500px">
-          <Typography variant="h5" style={{padding: 20}} className={classes.subHeading}>
-            Course Opted : BSC EX 2
+          <Typography
+            variant="h5"
+            style={{ padding: 20 }}
+            className={classes.subHeading}
+          >
+            Course Purchased
           </Typography>
           <br />
           <Typography variant="body1">
-            Foundations is for students looking to learn the core concepts
-            needed for the GMAT quant and verbal sections. This course is the
-            perfect building block for students who want to get the most out of
-            our advanced materials later on. Used alone, Foundations can get you
-            a GMAT score of up to 550.
+            <div className="course-wrap">
+              {allCourses.length == 0 && <div> No course purchased yet </div>}
+              {/* <CourseCard /> */}
+              {allCourses.length && (
+                <>
+                  {allCourses.map((item) => {
+                    return <CourseCard item={item} />;
+                  })}
+                </>
+              )}
+            </div>
           </Typography>
         </Box>
-
+        <Box width="500px">
+          <Typography
+            variant="h5"
+            style={{ padding: 20, marginTop: "20px" }}
+            className={classes.subHeading}
+          >
+            All Orders
+          </Typography>
+          <br />
+          <Typography variant="body1" style={{ marginBottom: "60px" }}>
+            <div className="course-wrap">
+              {allCourses.length == 0 && <div> No course purchased yet </div>}
+              <div className="table-cover">
+                <div
+                  className="table-cover-row"
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <div className="table-cover-item">Sr no </div>
+                  <div
+                    className="table-cover-item"
+                    style={{
+                      width: "300px",
+                    }}
+                  >
+                    Course Name{" "}
+                  </div>
+                  <div className="table-cover-item">Payment Id </div>
+                  <div className="table-cover-item">Date </div>
+                </div>
+                {allCourses.map((item, key) => {
+                  const d = new Date(item.timeStamp);
+                  return (
+                    <div className="table-cover-row">
+                      <div className="table-cover-item">{key + 1} </div>
+                      <div
+                        className="table-cover-item"
+                        style={{
+                          width: "300px",
+                        }}
+                      >
+                        {item.courseName}
+                      </div>
+                      <div className="table-cover-item">
+                        {item.razorpayOrderId}{" "}
+                      </div>
+                      <div className="table-cover-item">
+                        {d.toLocaleString()}{" "}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );
