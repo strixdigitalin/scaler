@@ -217,9 +217,7 @@ function Home() {
                                 >
                                   <a
                                     // href="https://scaler-dashboard.vercel.app/user/course"
-                                    href={`http://localhost:3000/user/course/${
-                                      getStore(USER_DATA)?._id
-                                    }`}
+                                    href="/profile"
                                     class="btn"
                                   >
                                     Dashboard
